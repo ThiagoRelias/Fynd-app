@@ -16,4 +16,3 @@ export async function buscaProdutos () {
 }
 
 export { APi_URL };
-
