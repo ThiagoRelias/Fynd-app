@@ -5,5 +5,11 @@ export interface Produto {
     descricao?: string;
     categoria?: string;
     imagemUrl: string
-    preco: number;
+    local: string;
+}       
+
+export interface Stats {
+    total: number
+    devolvidos: number
+    tempoMedioDias: number
 }

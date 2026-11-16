@@ -1,11 +1,11 @@
 import { Produto } from "@/types/produtos";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
-import { buscaProdutos } from "../service/api";
+import { buscaProdutos, buscaStats } from "../service/api";
+import type { Stats } from "../types/produtos";
 
 
-const CATEGORIAS = ["Todos", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "Bolsas e mochila", "Outros"]
-
+const CATEGORIAS = ["Todas", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "Bolsas e mochila", "Outros"]
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categoria, setCategoria] = useState("Todas");
@@ -13,10 +13,12 @@ export default function Produtos() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [atualizando, setAtualizando] = useState(false);
+  const [stats, setStats] = useState<Stats | null>(null);
 
   async function carregandoProduto() {
     try {
       setErro("");
+
       const resposta: any = await buscaProdutos();
       const lista = Array.isArray(resposta) ? resposta : Array.isArray(resposta.content) ? resposta.content : [];
       setProdutos(lista);
@@ -27,18 +29,21 @@ export default function Produtos() {
       setAtualizando(false);
     }
   }
-
   useEffect(() => {
     carregandoProduto();
+    buscaStats().then(setStats).catch(() => setStats(null));
   }, []);
-
   const filtrados = produtos.filter((p) => {
-    const bateBusca = (p.nome ?? "").toLowerCase().includes(busca.toLowerCase());
+    const termo = busca.toLowerCase();
+    const bateBusca =
+      (p.nome ?? "").toLowerCase().includes(termo) ||
+      (p.local ?? "").toLowerCase().includes(termo);
     const bateCategoria = categoria == "Todas" || p.categoria === categoria;
     return bateBusca && bateCategoria
-  })
 
+  })
   return (
+
     <View style={s.container}>
       <Image
         source={require("../../assets/images/logo.png")}
@@ -51,13 +56,15 @@ export default function Produtos() {
       <Text style={s.heroSub}>
         Itens encontrados no campus ficam guardados aqui. Ache o seu, confirme que é dono e combine a retirada.
       </Text>
-      <TextInput
-        style={s.input}
-        placeholder="Buscar por nome..."
-        placeholderTextColor="#6b6880"
-        value={busca}
-        onChangeText={setBusca}
-      />
+      <View style={s.busca}>
+        <TextInput
+          style={s.buscaInput}
+          placeholder="Buscar por nome ou local ..."
+          placeholderTextColor="#6b6880"
+          value={busca}
+          onChangeText={setBusca}
+        />
+      </View>
       <View style={s.chips}>
         {CATEGORIAS.map((c) => {
           const ativo = c === categoria;
@@ -72,12 +79,28 @@ export default function Produtos() {
           );
         })}
       </View>
-
+      <View style={s.stats}>
+        <View style={s.stat}>
+          <Text style={s.statValor}>{stats?.total ?? "128"}</Text>
+          <Text style={s.statRotulo}>Cadastrados</Text>
+        </View>
+        <View style={s.stat}>
+          <Text style={s.statValor}>{stats?.devolvidos ?? "94"}</Text>
+          <Text style={s.statRotulo}>Devolvidos</Text>
+        </View>
+        <View style={s.stat}>
+          <Text style={s.statValor}>
+            {stats ? `${stats.tempoMedioDias} dias` : "2 dias"}
+          </Text>
+          <Text style={s.statRotulo}>tempo médio</Text>
+        </View>
+      </View>
       {carregando ? (
         <ActivityIndicator color="#a855f7" style={{ marginTop: 40 }} />
       ) : erro ? (
         <Text style={s.erro}>{erro}</Text>
       ) : (
+
         <FlatList
           data={filtrados}
           keyExtractor={(p) => String(p.id)}
@@ -106,12 +129,6 @@ export default function Produtos() {
                 <Text style={s.nome} numberOfLines={2}>
                   {item.nome}
                 </Text>
-                <Text style={s.preco}>
-                  {Number(item.preco).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </Text>
               </View>
             </View>
           )}
@@ -120,7 +137,6 @@ export default function Produtos() {
     </View>
   );
 }
-
 const s = StyleSheet.create({
   container: {
     flex: 1,
@@ -226,5 +242,46 @@ const s = StyleSheet.create({
   chipTextoAtivo: {
     color: "#fff",
   },
-
+  busca: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#14111f",
+    borderColor: "#241f33",
+    borderWidth: 1,
+    marginBottom: 16,
+    height: 48,
+    width: "100%",
+  },
+  buscaInput: {
+    flex: 1,
+    height: "100%",
+    paddingHorizontal: 12,
+    fontSize: 14,
+    color: "#fff",
+  },
+  stats: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 24,
+  },
+  stat: {
+    flex: 1,
+    backgroundColor: "#14111f",
+    borderColor: "#241f33",
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+  },
+  statRotulo: {
+    color: "#9a96ad",
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginTop: 2,
+  },
+  statValor: {
+    color: "#7c3aed",
+    fontSize: 22,
+    fontFamily: "Inter_800ExtraBold",
+  },
 });
