@@ -1,12 +1,14 @@
 import { Produto } from "@/types/produtos";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
 import { buscaProdutos } from "../service/api";
 
 
+const CATEGORIAS = ["Todos", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "Bolsas e mochila", "Outros"]
 
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [categoria, setCategoria] = useState("Todas");
   const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -30,7 +32,11 @@ export default function Produtos() {
     carregandoProduto();
   }, []);
 
-  const filtrados = produtos.filter((p) => (p.nome ?? "").toLowerCase().includes(busca.toLowerCase()));
+  const filtrados = produtos.filter((p) => {
+    const bateBusca = (p.nome ?? "").toLowerCase().includes(busca.toLowerCase());
+    const bateCategoria = categoria == "Todas" || p.categoria === categoria;
+    return bateBusca && bateCategoria
+  })
 
   return (
     <View style={s.container}>
@@ -39,8 +45,12 @@ export default function Produtos() {
         style={s.logo}
         resizeMode="contain"
       />
-      <Text style={s.titulo}>Produtos</Text>
-
+      <Text style={s.eyebrow}>ACHADOS e PERDIDOS</Text>
+      <Text style={s.heroTitulo}>Perdeu algo?</Text>
+      <Text style={[s.heroTitulo, { color: "#7c3aed", fontSize: 45 }]}>Talvez esteja aqui.</Text>
+      <Text style={s.heroSub}>
+        Itens encontrados no campus ficam guardados aqui. Ache o seu, confirme que é dono e combine a retirada.
+      </Text>
       <TextInput
         style={s.input}
         placeholder="Buscar por nome..."
@@ -48,6 +58,20 @@ export default function Produtos() {
         value={busca}
         onChangeText={setBusca}
       />
+      <View style={s.chips}>
+        {CATEGORIAS.map((c) => {
+          const ativo = c === categoria;
+          return (
+            <Pressable
+              key={c}
+              onPress={() => setCategoria(c)}
+              style={[s.chip, ativo && s.chipAtivo]}
+            >
+              <Text style={[s.chipTexto, ativo && s.chipTextoAtivo]}>{c}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
 
       {carregando ? (
         <ActivityIndicator color="#a855f7" style={{ marginTop: 40 }} />
@@ -73,12 +97,11 @@ export default function Produtos() {
           }
           renderItem={({ item }) => (
             <View style={s.card}>
-              {item.imagem ? (
-                <Image source={{ uri: item.imagem }} style={s.img} />
+              {item.imagemUrl ? (
+                <Image source={{ uri: item.imagemUrl }} style={s.img} />
               ) : (
                 <View style={[s.img, s.semImg]} />
               )}
-
               <View style={s.info}>
                 <Text style={s.nome} numberOfLines={2}>
                   {item.nome}
@@ -104,11 +127,27 @@ const s = StyleSheet.create({
     backgroundColor: "#0b0813",
     padding: 16,
   },
-  titulo: {
+  eyebrow: {
+    color: "#9a96ad",
+    fontSize: 11,
+    letterSpacing: 2,
+    fontFamily: "Inter_600SemiBold",
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  heroTitulo: {
     color: "#fff",
-    fontSize: 28,
+    fontSize: 34,
+    lineHeight: 40,
     fontFamily: "Inter_800ExtraBold",
-    marginBottom: 16,
+  },
+  heroSub: {
+    color: "#9a96ad",
+    fontSize: 14,
+    lineHeight: 21,
+    fontFamily: "Inter_400Regular",
+    marginTop: 12,
+    marginBottom: 20,
   },
   input: {
     backgroundColor: "#14111f",
@@ -163,4 +202,29 @@ const s = StyleSheet.create({
     height: 40,
     marginBottom: 16,
   },
+  chips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 20,
+  },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "#14111f",
+    borderColor: "#241f33",
+    borderWidth: 1,
+  },
+  chipAtivo: {
+    backgroundColor: "#7c3aed",
+  },
+  chipTexto: {
+    color: "#c9c6da",
+    fontSize: 13,
+  },
+  chipTextoAtivo: {
+    color: "#fff",
+  },
+
 });
