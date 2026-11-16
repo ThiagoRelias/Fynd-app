@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, Image, RefreshControl, StyleSheet, Text, T
 import { buscaProdutos } from "../service/api";
 
 
+
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [busca, setBusca] = useState("");
@@ -33,6 +34,11 @@ export default function Produtos() {
 
   return (
     <View style={s.container}>
+      <Image
+        source={require("../../assets/images/logo.png")}
+        style={s.logo}
+        resizeMode="contain"
+      />
       <Text style={s.titulo}>Produtos</Text>
 
       <TextInput
@@ -94,37 +100,67 @@ export default function Produtos() {
 
 const s = StyleSheet.create({
   container: {
-
+    flex: 1,
+    backgroundColor: "#0b0813",
+    padding: 16,
   },
   titulo: {
-
+    color: "#fff",
+    fontSize: 28,
+    fontFamily: "Inter_800ExtraBold",
+    marginBottom: 16,
   },
   input: {
-
+    backgroundColor: "#14111f",
+    borderColor: "#241f33",
+    borderWidth: 1,
+    borderRadius: 10,
+    color: "#fff",
+    padding: 12,
+    marginBottom: 16,
   },
   card: {
-
+    flexDirection: "row",
+    backgroundColor: "#14111f",
+    borderColor: "#241f33",
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: "hidden"
   },
   img: {
-
+    width: 100,
+    height: 100
   },
   preco: {
 
   },
   semImg: {
-
+    backgroundColor: "#1b1729",
   },
   vazio: {
-
+    color: "#9a96ad",
+    textAlign: "center",
+    marginTop: 40
   },
   info: {
-
+    flex: 1,
+    padding: 12,
+    justifyContent: "center",
+    gap: 6
   },
   nome: {
-
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: "Inter_600SemiBold",
   },
   erro: {
-
+    color: "#f87171",
+    textAlign: "center",
+    marginTop: 40
   },
-
+  logo: {
+    width: 120,
+    height: 40,
+    marginBottom: 16,
+  },
 });
