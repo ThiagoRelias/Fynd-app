@@ -1,7 +1,7 @@
-const APi_URL ="esperar pedro terminar a api";
+const APi_URL = "https://slmxbp9p-8080.brs.devtunnels.ms";
 
-export async function buscaProdutos () {
-    try{
+export async function buscaProdutos() {
+    try {
         const resposta = await fetch(`${APi_URL}/api/produtos`);
 
         if (!resposta.ok) {
@@ -9,10 +9,11 @@ export async function buscaProdutos () {
         }
 
         return await resposta.json();
-    }catch(erro) {
+    } catch (erro) {
         console.error("Erro na API:", erro);
         throw erro;
     }
 }
 
 export { APi_URL };
+
