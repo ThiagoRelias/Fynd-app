@@ -1,6 +1,6 @@
 import { Produto } from "@/types/produtos";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { buscaProdutos, buscaStats } from "../service/api";
 import type { Stats } from "../types/produtos";
 
@@ -14,6 +14,9 @@ export default function Produtos() {
   const [erro, setErro] = useState("");
   const [atualizando, setAtualizando] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
+
+  const { width } = useWindowDimensions();
+  const larguraCard = (width - 32 - 12) / 2;
 
   async function carregandoProduto() {
     try {
@@ -33,108 +36,132 @@ export default function Produtos() {
     carregandoProduto();
     buscaStats().then(setStats).catch(() => setStats(null));
   }, []);
+
   const filtrados = produtos.filter((p) => {
     const termo = busca.toLowerCase();
     const bateBusca =
       (p.nome ?? "").toLowerCase().includes(termo) ||
       (p.local ?? "").toLowerCase().includes(termo);
     const bateCategoria = categoria == "Todas" || p.categoria === categoria;
+
     return bateBusca && bateCategoria
 
   })
   return (
 
     <View style={s.container}>
-      <Image
-        source={require("../../assets/images/logo.png")}
-        style={s.logo}
-        resizeMode="contain"
-      />
-      <Text style={s.eyebrow}>ACHADOS e PERDIDOS</Text>
-      <Text style={s.heroTitulo}>Perdeu algo?</Text>
-      <Text style={[s.heroTitulo, { color: "#7c3aed", fontSize: 45 }]}>Talvez esteja aqui.</Text>
-      <Text style={s.heroSub}>
-        Itens encontrados no campus ficam guardados aqui. Ache o seu, confirme que é dono e combine a retirada.
-      </Text>
-      <View style={s.busca}>
-        <TextInput
-          style={s.buscaInput}
-          placeholder="Buscar por nome ou local ..."
-          placeholderTextColor="#6b6880"
-          value={busca}
-          onChangeText={setBusca}
-        />
-      </View>
-      <View style={s.chips}>
-        {CATEGORIAS.map((c) => {
-          const ativo = c === categoria;
-          return (
-            <Pressable
-              key={c}
-              onPress={() => setCategoria(c)}
-              style={[s.chip, ativo && s.chipAtivo]}
-            >
-              <Text style={[s.chipTexto, ativo && s.chipTextoAtivo]}>{c}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-      <View style={s.stats}>
-        <View style={s.stat}>
-          <Text style={s.statValor}>{stats?.total ?? "128"}</Text>
-          <Text style={s.statRotulo}>Cadastrados</Text>
-        </View>
-        <View style={s.stat}>
-          <Text style={s.statValor}>{stats?.devolvidos ?? "94"}</Text>
-          <Text style={s.statRotulo}>Devolvidos</Text>
-        </View>
-        <View style={s.stat}>
-          <Text style={s.statValor}>
-            {stats ? `${stats.tempoMedioDias} dias` : "2 dias"}
-          </Text>
-          <Text style={s.statRotulo}>tempo médio</Text>
-        </View>
-      </View>
-      {carregando ? (
-        <ActivityIndicator color="#a855f7" style={{ marginTop: 40 }} />
-      ) : erro ? (
-        <Text style={s.erro}>{erro}</Text>
-      ) : (
 
-        <FlatList
-          data={filtrados}
-          keyExtractor={(p) => String(p.id)}
-          contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={atualizando}
-              tintColor="#a855f7"
-              onRefresh={() => {
-                setAtualizando(true);
-                carregandoProduto();
-              }}
+      <FlatList
+        data={filtrados}
+        numColumns={2}
+        columnWrapperStyle={{ gap: 12 }}
+        keyExtractor={(p) => String(p.id)}
+        contentContainerStyle={{ gap: 12, padding: 16, paddingTop: 56, paddingBottom: 32 }}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={atualizando}
+            tintColor="#a855f7"
+            onRefresh={() => {
+              setAtualizando(true);
+              carregandoProduto();
+            }}
+          />
+        }
+        ListHeaderComponent={
+          <View>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={s.logo}
+              resizeMode="contain"
             />
-          }
-          ListEmptyComponent={
-            <Text style={s.vazio}>Nenhum produto encontrado.</Text>
-          }
-          renderItem={({ item }) => (
-            <View style={s.card}>
-              {item.imagemUrl ? (
-                <Image source={{ uri: item.imagemUrl }} style={s.img} />
-              ) : (
-                <View style={[s.img, s.semImg]} />
-              )}
-              <View style={s.info}>
-                <Text style={s.nome} numberOfLines={2}>
-                  {item.nome}
+            <Text style={s.eyebrow}>ACHADOS e PERDIDOS</Text>
+            <Text style={s.heroTitulo}>Perdeu algo?</Text>
+            <Text style={[s.heroTitulo, { color: "#7c3aed", fontSize: 45 }]}>Talvez esteja aqui.</Text>
+            <Text style={s.heroSub}>
+              Itens encontrados no campus ficam guardados aqui. Ache o seu, confirme que é dono e combine a retirada.
+            </Text>
+
+            <View style={s.busca}>
+              <TextInput
+                style={s.buscaInput}
+                placeholder="Buscar por nome ou local ..."
+                placeholderTextColor="#6b6880"
+                value={busca}
+                onChangeText={setBusca}
+              />
+            </View>
+
+            <View style={s.chips}>
+              {CATEGORIAS.map((c) => {
+                const ativo = c === categoria;
+                return (
+                  <Pressable
+                    key={c}
+                    onPress={() => setCategoria(c)}
+                    style={[s.chip, ativo && s.chipAtivo]}
+                  >
+                    <Text style={[s.chipTexto, ativo && s.chipTextoAtivo]}>{c}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <View style={s.stats}>
+              <View style={s.stat}>
+                <Text style={s.statValor}>{stats?.total ?? "128"}</Text>
+                <Text style={s.statRotulo}>Cadastrados</Text>
+              </View>
+              <View style={s.stat}>
+                <Text style={s.statValor}>{stats?.devolvidos ?? "94"}</Text>
+                <Text style={s.statRotulo}>Devolvidos</Text>
+              </View>
+              <View style={s.stat}>
+                <Text style={s.statValor}>
+                  {stats ? `${stats.tempoMedioDias} dias` : "2 dias"}
                 </Text>
+                <Text style={s.statRotulo}>tempo médio</Text>
               </View>
             </View>
-          )}
-        />
-      )}
+            <View style={s.headerLista}>
+              <Text style={s.tituloLista}>Encontrados Recentemente</Text>
+            </View>
+            {erro ? <Text style={s.erro}>{erro}</Text> : null}
+          </View>
+        }
+        ListEmptyComponent={() =>
+          carregando ? (
+            <ActivityIndicator color="#a855f7" style={{ marginTop: 24 }} />
+          ) : erro ? (
+            <></>
+          ) : (
+            <Text style={s.vazio}>Nenhum objeto encontrado.</Text>
+          )
+        }
+        renderItem={({ item }) => (
+          <View style={[s.card, { width: larguraCard }]}>
+            {item.imagemUrl ? (
+              <Image source={{ uri: item.imagemUrl }} style={s.img} />
+            ) : (
+              <View style={[s.img, s.semImg]} />
+            )}
+            <View style={s.info}>
+              <Text style={s.categoriaTag}>
+                {(item.categoria ?? "").toUpperCase()}
+              </Text>
+              <Text style={s.nome} numberOfLines={2}>
+                {item.nome}
+              </Text>
+              <Text style={s.local} numberOfLines={1}>
+                {item.local ?? ""}
+              </Text>
+            </View>
+          </View>
+        )}
+      />
+
     </View>
+
   );
 }
 const s = StyleSheet.create({
@@ -167,7 +194,7 @@ const s = StyleSheet.create({
   },
   input: {
     backgroundColor: "#14111f",
-    borderColor: "#241f33",
+    borderColor: "#2A2338",
     borderWidth: 1,
     borderRadius: 10,
     color: "#fff",
@@ -175,19 +202,15 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    flexDirection: "row",
     backgroundColor: "#14111f",
-    borderColor: "#241f33",
+    borderColor: "#2A2338",
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 15,
     overflow: "hidden"
   },
   img: {
-    width: 100,
-    height: 100
-  },
-  preco: {
-
+    width: "100%",
+    height: 130,
   },
   semImg: {
     backgroundColor: "#1b1729",
@@ -198,10 +221,8 @@ const s = StyleSheet.create({
     marginTop: 40
   },
   info: {
-    flex: 1,
     padding: 12,
-    justifyContent: "center",
-    gap: 6
+    gap: 4
   },
   nome: {
     color: "#fff",
@@ -270,7 +291,7 @@ const s = StyleSheet.create({
     backgroundColor: "#14111f",
     borderColor: "#241f33",
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 15,
     padding: 14,
   },
   statRotulo: {
@@ -283,5 +304,26 @@ const s = StyleSheet.create({
     color: "#7c3aed",
     fontSize: 22,
     fontFamily: "Inter_800ExtraBold",
+  },
+  categoriaTag: {
+    color: "#7c3aed",
+    fontSize: 9,
+    letterSpacing: 1,
+    fontFamily: "Inter_600SemiBold",
+  },
+  local: {
+    color: "#9a96ad",
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginTop: 4
+  },
+  headerLista: {
+    marginBottom: 16
+  },
+  tituloLista: {
+    color: "#fff",
+    fontSize: 21,
+    fontFamily: "Inter_800ExtraBold",
+
   },
 });

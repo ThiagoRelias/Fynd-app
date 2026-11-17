@@ -3,7 +3,7 @@ const APi_URL = "https://slmxbp9p-8080.brs.devtunnels.ms";
 export async function buscaProdutos() {
     try {
         const resposta = await fetch(`${APi_URL}/api/produtos`);
-        if (!resposta.ok) throw new Error("Erro ao buscar produtos.");
+        if (!resposta.ok) throw new Error("Erro ao buscar Objeto.");
         return await resposta.json();
     } catch (erro) {
         console.error("Erro na API:", erro);
