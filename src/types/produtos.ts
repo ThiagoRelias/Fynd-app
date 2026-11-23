@@ -6,6 +6,8 @@ export interface Produto {
     categoria?: string;
     imagemUrl: string
     local: string;
+    status?: "AGUARDANDO_DONO" | "DEVOLVIDO";
+    dataEncontrado: string;
 }       
 
 export interface Stats {

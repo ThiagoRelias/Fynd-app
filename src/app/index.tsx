@@ -1,8 +1,10 @@
 import { Produto } from "@/types/produtos";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { buscaProdutos, buscaStats } from "../service/api";
-import type { Stats } from "../types/produtos";
+
 
 
 const CATEGORIAS = ["Todas", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "Bolsas e mochila", "Outros"]
@@ -13,8 +15,7 @@ export default function Produtos() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [atualizando, setAtualizando] = useState(false);
-  const [stats, setStats] = useState<Stats | null>(null);
-
+  const { data: stats } = useQuery({ queryKey: ["stats"], queryFn: buscaStats, refetchInterval: 5 * 60 * 1000, });
   const { width } = useWindowDimensions();
   const larguraCard = (width - 32 - 12) / 2;
 
@@ -34,7 +35,6 @@ export default function Produtos() {
   }
   useEffect(() => {
     carregandoProduto();
-    buscaStats().then(setStats).catch(() => setStats(null));
   }, []);
 
   const filtrados = produtos.filter((p) => {
@@ -45,12 +45,9 @@ export default function Produtos() {
     const bateCategoria = categoria == "Todas" || p.categoria === categoria;
 
     return bateBusca && bateCategoria
-
   })
   return (
-
     <View style={s.container}>
-
       <FlatList
         data={filtrados}
         numColumns={2}
@@ -75,6 +72,11 @@ export default function Produtos() {
               style={s.logo}
               resizeMode="contain"
             />
+            <Link href="/painel" asChild>
+              <Pressable style={s.botaoPainel}>
+                <Text style={s.botaoPainelTexto}>Painel</Text>
+              </Pressable>
+            </Link>
             <Text style={s.eyebrow}>ACHADOS e PERDIDOS</Text>
             <Text style={s.heroTitulo}>Perdeu algo?</Text>
             <Text style={[s.heroTitulo, { color: "#7c3aed", fontSize: 45 }]}>Talvez esteja aqui.</Text>
@@ -91,7 +93,6 @@ export default function Produtos() {
                 onChangeText={setBusca}
               />
             </View>
-
             <View style={s.chips}>
               {CATEGORIAS.map((c) => {
                 const ativo = c === categoria;
@@ -109,16 +110,16 @@ export default function Produtos() {
 
             <View style={s.stats}>
               <View style={s.stat}>
-                <Text style={s.statValor}>{stats?.total ?? "128"}</Text>
+                <Text style={s.statValor}>{stats?.total ?? "-"}</Text>
                 <Text style={s.statRotulo}>Cadastrados</Text>
               </View>
               <View style={s.stat}>
-                <Text style={s.statValor}>{stats?.devolvidos ?? "94"}</Text>
+                <Text style={s.statValor}>{stats?.devolvidos ?? "-"}</Text>
                 <Text style={s.statRotulo}>Devolvidos</Text>
               </View>
               <View style={s.stat}>
                 <Text style={s.statValor}>
-                  {stats ? `${stats.tempoMedioDias} dias` : "2 dias"}
+                  {stats ? `${stats.tempoMedioDias} dias` : "-"}
                 </Text>
                 <Text style={s.statRotulo}>tempo médio</Text>
               </View>
@@ -159,16 +160,13 @@ export default function Produtos() {
           </View>
         )}
       />
-
     </View>
-
   );
 }
 const s = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0b0813",
-    padding: 16,
   },
   eyebrow: {
     color: "#9a96ad",
@@ -206,7 +204,7 @@ const s = StyleSheet.create({
     borderColor: "#2A2338",
     borderWidth: 1,
     borderRadius: 15,
-    overflow: "hidden"
+    overflow: "hidden",
   },
   img: {
     width: "100%",
@@ -237,7 +235,7 @@ const s = StyleSheet.create({
   logo: {
     width: 120,
     height: 40,
-    marginBottom: 16,
+    marginBottom: 10,
   },
   chips: {
     flexDirection: "row",
@@ -326,4 +324,18 @@ const s = StyleSheet.create({
     fontFamily: "Inter_800ExtraBold",
 
   },
+  botaoPainelTexto: {
+    color: "#7c3aed",
+    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
+
+  },
+  botaoPainel: {
+    backgroundColor: "#14111f",
+    borderColor: "#7c3aed",
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 50,
+  }
 });
