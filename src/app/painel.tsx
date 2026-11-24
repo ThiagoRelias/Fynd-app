@@ -117,21 +117,15 @@ export default function Painel() {
                     )
                 }
                 renderItem={({ item }) => {
-
                     const devolvido = item.status === "DEVOLVIDO";
-
                     return (
-
                         <View style={[s.card, { width: larguraCard }]}>
-
                             {item.imagemUrl ? (
                                 <Image source={{ uri: item.imagemUrl }} style={s.img} />
                             ) : (
                                 <View style={[s.img, s.semImg]} />
                             )}
-
                             <View style={s.info}>
-
                                 <View style={[s.badge, devolvido && s.badgeDevolvido]}>
                                     <Text style={[s.badgeTexto, devolvido && s.badgeTextoDevolvido]}>
                                         {devolvido ? "Devolvido" : "Aguardando dono"}
@@ -177,7 +171,7 @@ export default function Painel() {
 const s = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#42325f"
+        backgroundColor: "#0b0813"
     },
     logo: {
         width: 120,
@@ -185,100 +179,188 @@ const s = StyleSheet.create({
         marginBottom: 16,
     },
     eyebrow: {
-        color: "#9a96ad"
+        color: "#281b66",
+        fontSize: 11,
+        letterSpacing: 2,
+        fontFamily: "Inter_600SemiBold",
+        marginTop: 8,
+        marginBottom: 8,
 
     },
     titulo: {
-
+        color: "#fff",
+        fontSize: 30,
+        lineHeight: 36,
+        fontFamily: "Inter_800ExtraBold",
     },
     resumo: {
-
+        color: "#fff",
+        fontSize: 13,
+        fontFamily: "Inter_400Regular",
+        marginTop: 6,
+        marginBottom: 16,
     },
     botaoCadastrar: {
-
+        backgroundColor: "#7c3aed",
+        borderRadius: 14,
+        paddingVertical: 16,
+        alignItems: "center"
     },
     botaoCadastrarTexto: {
-
+        color: "#fff",
+        fontSize: 15,
+        fontFamily: "Inter_600SemiBold",
     },
     filtrar: {
+        backgroundColor: "#14111f",
+        borderColor: "#241f33",
+        borderWidth: 1,
+        borderRadius: 12,
+        color: "#fff",
+        fontSize: 14,
+        fontFamily: "Inter_400Regular",
+        paddingHorizontal: 14,
+        paddingVertical: 14,
+        marginBottom: 16,
 
     },
     chips: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        marginBottom: 20,
 
     },
     chip: {
-
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 99,
+        backgroundColor: "#14111f",
+        borderWidth: 1,
+        borderColor: "#262136",
     },
     chipAtivo: {
-
+        backgroundColor: "#7C14F5",
+        fontSize: 13,
+        fontFamily: "Inter_400Regular",
     },
     chipTexto: {
-
+        color: "#9C94AE",
+        fontSize: 13,
+        fontFamily: "Inter_600SemiBold",
     },
     chipTextoAtivo: {
-
+        color: "#fff",
+        fontFamily: "Inter_600SemiBold",
     },
     erro: {
-
+        color: "#e4c3c3",
+        textAlign: "center",
+        marginBottom: 16,
     },
     vazio: {
-
+        color: "#9a96ad",
+        textAlign: "center",
+        marginTop: 40,
     },
     card: {
-
+        backgroundColor: "#14111f",
+        borderColor: "#2A2338",
+        borderWidth: 1,
+        borderRadius: 16,
+        overflow: "hidden",
     },
     img: {
-
+        width: "100%",
+        height: 110,
     },
     semImg: {
-
+        backgroundColor: "#1b1729",
     },
     info: {
-
+        padding: 12,
+        gap: 8
     },
     badge: {
-
+        alignSelf: "stretch",
+        alignItems: "center",
+        borderRadius: 99,
+        borderColor: "#7c3aed",
+        borderWidth: 1,
+        backgroundColor: "#1d1432",
+        paddingVertical: 4,
+        marginBottom: 4,
     },
     badgeDevolvido: {
-
+        borderColor: "#3eb86b",
+        backgroundColor: "#0f2a1a",
     },
     badgeTexto: {
-
+        color: "#fff",
+        fontSize: 11,
+        fontFamily: "Inter_600SemiBold",
     },
     badgeTextoDevolvido: {
-
+        color: "#37794f"
     },
     nome: {
-
+        color: "#fff",
+        fontSize: 15,
+        fontFamily: "Inter_600SemiBold"
     },
     categoriaTag: {
-
+        color: "#7c3aed",
+        fontSize: 9,
+        letterSpacing: 1,
+        fontFamily: "Inter_600SemiBold"
     },
     data: {
-
+        color: "#9a96ad",
+        fontSize: 12,
+        fontFamily: "Inter_400Regular"
     },
     local: {
-
+        color: "#9a96ad",
+        fontSize: 12,
+        fontFamily: "Inter_400Regular",
+        minHeight: 32,
     },
     acoes: {
-
+        flexDirection: "row",
+        gap: 8,
+        marginTop: 6,
     },
     botaoEditar: {
-
+        flex: 1,
+        alignItems: "center",
+        paddingVertical: 10,
     },
     botaoEditarTexto: {
-
+        color: "#fff",
+        fontSize: 12,
+        fontFamily: "Inter_600SemiBold",
     },
     botaoDeletar: {
-
+        flex: 1,
+        alignItems: "center",
+        borderRadius: 999,
+        backgroundColor: "#c05151",
+        paddingVertical: 10,
     },
     botaoDeletarTexto: {
-
+        color: "#fff",
+        fontSize: 12,
+        fontFamily: "Arial",
     },
     botaoStatus: {
-
+        alignItems: "center",
+        borderRadius: 999,
+        backgroundColor: "#7c3aed",
+        paddingVertical: 11,
     },
     botaoStatusTexto: {
-
-    }
+        color: "#fff",
+        fontSize: 12,
+        fontFamily: "Inter_600SemiBold",
+    },
 });

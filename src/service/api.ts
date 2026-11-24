@@ -1,4 +1,5 @@
-const APi_URL = "https://slmxbp9p-8080.brs.devtunnels.m";
+
+const APi_URL = "https://slmxbp9p-8080.brs.devtunnels.ms";
 
 export async function buscaProdutos() {
     try {
@@ -20,5 +21,6 @@ export async function buscaStats() {
         throw erro;
     }
 }
+
 export { APi_URL };
 

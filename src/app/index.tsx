@@ -7,7 +7,7 @@ import { buscaProdutos, buscaStats } from "../service/api";
 
 
 
-const CATEGORIAS = ["Todas", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "Bolsas e mochila", "Outros"]
+const CATEGORIAS = ["Todas", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "mochila", "Outros"]
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categoria, setCategoria] = useState("Todas");
@@ -74,7 +74,7 @@ export default function Produtos() {
             />
             <Link href="/painel" asChild>
               <Pressable style={s.botaoPainel}>
-                <Text style={s.botaoPainelTexto}>Painel</Text>
+                <Text style={s.botaoPainelTexto}>Painel Admin</Text>
               </Pressable>
             </Link>
             <Text style={s.eyebrow}>ACHADOS e PERDIDOS</Text>
@@ -207,8 +207,8 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   img: {
-    width: "100%",
-    height: 130,
+    width: "100",
+    height: 150,
   },
   semImg: {
     backgroundColor: "#1b1729",
@@ -322,20 +322,22 @@ const s = StyleSheet.create({
     color: "#fff",
     fontSize: 21,
     fontFamily: "Inter_800ExtraBold",
-
-  },
-  botaoPainelTexto: {
-    color: "#7c3aed",
-    fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
-
   },
   botaoPainel: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
     backgroundColor: "#14111f",
-    borderColor: "#7c3aed",
+    borderColor: "#7344c4",
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 50,
-  }
+    borderRadius: 8,
+  },
+  botaoPainelTexto: {
+    color: "#7c3aed",
+    fontSize: 17,
+    fontFamily: "Inter_600SemiBold",
+  },
 });
