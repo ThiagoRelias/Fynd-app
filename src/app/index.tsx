@@ -7,7 +7,7 @@ import { buscaProdutos, buscaStats } from "../service/api";
 
 
 
-const CATEGORIAS = ["Todas", "Eletrônicos", "Documentos", "Roupas", "Acessorios", "Chaves", "mochila", "Outros"]
+const CATEGORIAS = ["Todas", "eletrônicos", "documentos", "roupas", "acessórios", "chaves", "bolsas e mochilas", "outros"]
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categoria, setCategoria] = useState("Todas");
@@ -209,6 +209,7 @@ const s = StyleSheet.create({
   img: {
     width: "100",
     height: 150,
+    
   },
   semImg: {
     backgroundColor: "#1b1729",

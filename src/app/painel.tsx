@@ -1,9 +1,9 @@
-import { buscaProdutos } from "@/service/api";
+import { atualizaProduto, buscaProdutos, criaProduto, deletaProduto } from "@/service/api";
 import { Produto } from "@/types/produtos";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
-
+import { ActivityIndicator, Alert, FlatList, Image, Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { FormObjeto } from "../components/FormObjeto";
 
 const FILTROS = ["Todos", "Aguardando dono", "Devolvidos"]
 
@@ -20,17 +20,68 @@ function formatarData(data?: string) {
 
 }
 
+
+function confirmar(titulo: string, mensagem: string, aoConfirmar: () => void) {
+
+    if (Platform.OS === "web") {
+        if (window.confirm(`${titulo}\n${mensagem}`)) aoConfirmar();
+        return;
+    }
+
+    Alert.alert(titulo, mensagem, [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Confirmar", style: "destructive", onPress: aoConfirmar },
+    ]);
+
+}
+function avisar(titulo: string, mensagem: string) {
+
+    if (Platform.OS === "web") {
+        window.alert(`${titulo}\n${mensagem}`);
+        return;
+    }
+
+    Alert.alert(titulo, mensagem);
+
+}
 export default function Painel() {
 
     const [busca, setBusca] = useState("");
     const [filtro, setFiltro] = useState("Todos");
+    const [formAberto, setFormAberto] = useState(false);
 
     const { width } = useWindowDimensions();
     const larguraCard = (width - 32 - 12) / 2;
 
+    const queryClient = useQueryClient();
+
     const { data, isLoading, isError } = useQuery({
         queryKey: ["produtos"],
         queryFn: buscaProdutos,
+    });
+
+    const cadastrar = useMutation({
+        mutationFn: criaProduto,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["produtos"]});
+            setFormAberto(false);
+        },
+        onError: () => avisar("Erro", "Não foi possivel Cadastrar o objeto"),
+    });
+    const deletar = useMutation({
+        mutationFn: deletaProduto,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["produtos"] }),
+        onError: () => avisar("Erro", "Não foi possível deletar o objeto."),
+    });
+
+    const alterarStatus = useMutation({
+        mutationFn: (p: Produto) =>
+            atualizaProduto(p.id, {
+                ...p,
+                status: p.status === "DEVOLVIDO" ? "AGUARDANDO_DONO" : "DEVOLVIDO",
+            }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["produtos"] }),
+        onError: () => avisar("Erro", "Não foi possível alterar o status."),
     });
 
     const produtos: Produto[] = Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : [];
@@ -54,6 +105,7 @@ export default function Painel() {
         return bateBusca && bateFiltro;
 
     })
+
     return (
 
         <View style={s.container}>
@@ -74,14 +126,13 @@ export default function Painel() {
                             style={s.logo}
                             resizeMode="contain"
                         />
-
                         <Text style={s.eyebrow}>PAINEL</Text>
                         <Text style={s.titulo}>Objetos cadastrados</Text>
                         <Text style={s.resumo}> {total} no total · {aguardando} aguardando · {devolvidos} devolvido{devolvidos === 1 ? "" : "s"}
                         </Text>
-                        <Pressable style={s.botaoCadastrar}>
-                            <Text style={s.botaoCadastrarTexto}>+  Cadastrar objeto</Text>
-                        </Pressable>
+                       <Pressable style={s.botaoCadastrar} onPress={() => setFormAberto(true)}>
+                          <Text style={s.botaoCadastrarTexto}>  Cadastrar objeto</Text>
+                       </Pressable>
 
                         <TextInput
                             style={s.filtrar}
@@ -152,22 +203,40 @@ export default function Painel() {
                                         <Text style={s.botaoEditarTexto}>Editar</Text>
                                     </Pressable>
 
-                                    <Pressable style={s.botaoDeletar}>
+                                    <Pressable
+                                        style={s.botaoDeletar}
+                                        disabled={deletar.isPending}
+                                        onPress={() =>
+                                            confirmar("Deletar objeto", `Deseja deletar "${item.nome}"?`, () => deletar.mutate(item.id))
+                                        }
+                                    >   
                                         <Text style={s.botaoDeletarTexto}>Deletar</Text>
                                     </Pressable>
-                                </View>
-
-                                <Pressable style={s.botaoStatus}>
+                                </View> 
+                                        
+                                <Pressable
+                                    style={s.botaoStatus}
+                                    disabled={alterarStatus.isPending}
+                                    onPress={() => alterarStatus.mutate(item)}
+                                >
                                     <Text style={s.botaoStatusTexto}>Alterar status</Text>
                                 </Pressable>
                             </View>
                         </View>
                     );
                 }}
+                  />
+
+            <FormObjeto
+                visivel={formAberto}
+                onFechar={() => setFormAberto(false)}
+                onSalvar={(dados) => cadastrar.mutate(dados)}
+                salvando={cadastrar.isPending}
             />
         </View>
     );
 }
+
 const s = StyleSheet.create({
     container: {
         flex: 1,
@@ -363,4 +432,7 @@ const s = StyleSheet.create({
         fontSize: 12,
         fontFamily: "Inter_600SemiBold",
     },
+    formulario: {
+
+    }
 });
